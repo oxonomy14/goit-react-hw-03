@@ -2,65 +2,66 @@ import { useState, useEffect } from "react";
 import reactLogo from "../assets/react.svg";
 import "./App.css";
 
-import Description from "./Description/Description";
-import Option from "./Option/Option";
-import Notification from "./Notification/Notification";
-import Feedback from "./Feedback/Feedback";
+import { nanoid } from "nanoid";
+
+import phonebook from "../assets/phonebook.json";
+
+import ContactList from "./ContactList/ContactList";
+import SearchBox from "./SearchBox/SearchBox";
+import ContactForm from "./ContactForm/ContactForm";
 
 const App = () => {
-  const [views, setViews] = useState(() => {
-    const savedViews = window.localStorage.getItem("feedback");
-    if (savedViews !== null) {
-      return JSON.parse(savedViews);
-    }
-    return {
-      good: 0,
-      neutral: 0,
-      bad: 0,
-    };
-  });
+  const [contact, setContact] = useState(
+    () => JSON.parse(localStorage.getItem("contact")) ?? phonebook
+  );
 
-  const updateFeedback = (feedbackType) => {
-    setViews((views) => ({
-      ...views,
-      [feedbackType]: views[feedbackType] + 1,
-    }));
-  };
-
-  const totalFeedback = views.good + views.neutral + views.bad;
-
-  const positiveFeedback =
-    totalFeedback > 0 ? Math.round((views.good / totalFeedback) * 100) : 0;
+  const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
-    window.localStorage.setItem("feedback", JSON.stringify(views));
-  }, [views]);
+    localStorage.setItem("contact", JSON.stringify(contact));
+  }, [contact]);
 
-  const resetFeedback = () => {
-    setViews({
-      good: 0,
-      neutral: 0,
-      bad: 0,
-    });
+  const handleSearchContact = (evt) => {
+    const query = evt.target.value.toLowerCase(); // Отримуємо значення з інпуту
+    setInputValue(query); // Оновлюємо стан інпуту
+
+    // Фільтруємо контакти за ім’ям
+    const filteredContacts = phonebook.filter((item) =>
+      item.name.toLowerCase().includes(query)
+    );
+
+    setContact(filteredContacts); // Оновлюємо список контактів
+  };
+
+  const handleSubmit = (values, actions) => {
+    const newContact = {
+      id: nanoid(), // Генеруємо унікальний ID
+      ...values,
+    };
+
+    console.log(newContact);
+    setContact([...contact, newContact]); // Передаємо новий контакт у функцію
+    actions.resetForm();
+  };
+
+  const handleDeleteContact = (contactId) => {
+    const updatedContacts = contact.filter((item) => item.id !== contactId);
+    setContact(updatedContacts);
   };
 
   return (
     <>
-      <Description />
-      <Option
-        updateFeedback={updateFeedback}
-        totalFeedback={totalFeedback}
-        resetFeedback={resetFeedback}
+      <h1>Phonebook</h1>
+      <ContactForm handleSubmit={handleSubmit} />
+      <SearchBox
+        inputValue={inputValue}
+        setInputValue={setInputValue}
+        onChange={handleSearchContact}
       />
-      {totalFeedback > 0 ? (
-        <Feedback
-          {...views}
-          totalFeedback={totalFeedback}
-          positiveFeedback={positiveFeedback}
-        />
-      ) : (
-        <Notification />
-      )}
+      <ContactList
+        phonebook={contact}
+        handleDeleteContact={handleDeleteContact}
+      />
     </>
   );
 };
