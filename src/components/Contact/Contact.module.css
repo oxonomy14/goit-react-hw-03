@@ -40,5 +40,5 @@
 
 .buttonContactItem:hover {
   box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.2);
-  background: linear-gradient(99deg, #00c5eb 0%, #b544fe 100%);
+  border: 1px solid #202020;
 }

@@ -15,23 +15,15 @@ const App = () => {
     () => JSON.parse(localStorage.getItem("contact")) ?? phonebook
   );
 
-  const [inputValue, setInputValue] = useState("");
+  const [filter, setFilter] = useState("");
 
   useEffect(() => {
     localStorage.setItem("contact", JSON.stringify(contact));
   }, [contact]);
 
-  const handleSearchContact = (evt) => {
-    const query = evt.target.value.toLowerCase(); // Отримуємо значення з інпуту
-    setInputValue(query); // Оновлюємо стан інпуту
-
-    // Фільтруємо контакти за ім’ям
-    const filteredContacts = phonebook.filter((item) =>
-      item.name.toLowerCase().includes(query)
-    );
-
-    setContact(filteredContacts); // Оновлюємо список контактів
-  };
+  const visibleContacts = contact.filter((item) =>
+    item.name.toLowerCase().includes(filter.toLowerCase())
+  );
 
   const handleSubmit = (values, actions) => {
     const newContact = {
@@ -53,15 +45,8 @@ const App = () => {
     <>
       <h1>Phonebook</h1>
       <ContactForm handleSubmit={handleSubmit} />
-      <SearchBox
-        inputValue={inputValue}
-        setInputValue={setInputValue}
-        onChange={handleSearchContact}
-      />
-      <ContactList
-        phonebook={contact}
-        handleDeleteContact={handleDeleteContact}
-      />
+      <SearchBox value={filter} onFilter={setFilter} />
+      <ContactList contact={visibleContacts} onDelete={handleDeleteContact} />
     </>
   );
 };
