@@ -25,13 +25,12 @@ const App = () => {
     item.name.toLowerCase().includes(filter.toLowerCase())
   );
 
-  const handleSubmit = (values, actions) => {
+  const addContact = (values, actions) => {
     const newContact = {
       id: nanoid(), // Генеруємо унікальний ID
       ...values,
     };
 
-    console.log(newContact);
     setContact([...contact, newContact]); // Передаємо новий контакт у функцію
     actions.resetForm();
   };
@@ -44,7 +43,7 @@ const App = () => {
   return (
     <>
       <h1>Phonebook</h1>
-      <ContactForm handleSubmit={handleSubmit} />
+      <ContactForm handleSubmit={addContact} />
       <SearchBox value={filter} onFilter={setFilter} />
       <ContactList contact={visibleContacts} onDelete={handleDeleteContact} />
     </>
